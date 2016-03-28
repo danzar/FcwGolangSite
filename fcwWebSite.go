@@ -14,23 +14,17 @@ import (
 	"net/url"
 	"strings"
 	"strconv"
+	"github.com/jimlawless/cfg"
 )
 
 
 var debug = false
-var sessionName = "fcw-server"
-var camLogin = "XXXX"
-var camPassword = "XXXX"
-
 var remoteAddress = true
-var ipAddress = "24.196.196.242:"
-//var ipAddress = "192.168.1.{{port}}:"
-
+var mymap = make(map[string]string)
 
 //94 seems to not responding, could be a firewill error
 var ports = []string{"98", "97", "93","94"}
 var secretKey = "12345POIUYT"
-
 
 
 var store = sessions.NewCookieStore([]byte(secretKey))
@@ -51,8 +45,10 @@ type defaultContext struct {
 
 
 func main() {
-
-
+	err := cfg.Load("site.cfg", mymap)
+	if err != nil {
+		panic(err)
+	}
 	common.LogDebugData("Main Loading", debug)
 	staticPages = staticPage.PopulateStaticPages(getThemeName())
 
@@ -70,15 +66,15 @@ func main() {
 	for port := range ports{
 		remote, _ := url.Parse("")
 		if remoteAddress{
-			remote.Host = ipAddress + ports[port]
+			remote.Host = mymap["ipaddressremote"] + ports[port]
 		}else{
-			remote.Host = strings.Replace(ipAddress, "{{port}}",ports[port],-1)  + ports[port]
+			remote.Host = strings.Replace(mymap["ipaddress"], "{{port}}",ports[port],-1)  + ports[port]
 		}
 
 		remote.Scheme = "http"
 		q := remote.Query()
-		q.Set("user", camLogin)
-		q.Set("pwd", camPassword)
+		q.Set("user", mymap["camlogin"])
+		q.Set("pwd", mymap["campassword"])
 		remote.RawQuery = q.Encode()
 
 		//Create the proxy and send it the handler
@@ -95,8 +91,9 @@ func main() {
 	http.HandleFunc("/js/", resource.ServerResourceFiles)
 
 
+
 	http.Handle("/", gorillaRoute)
-	err := http.ListenAndServe(":8080",context.ClearHandler(http.DefaultServeMux))
+	err = http.ListenAndServe(":8081",context.ClearHandler(http.DefaultServeMux))
 	if err != nil {
 		common.LogData(err.Error());
 	}
@@ -107,9 +104,8 @@ func serverHandler(w http.ResponseWriter, r *http.Request)  {
 
         logedIn := false
 
-
 	//Get Session from store if there is one, if not it will return a new one.
-	session , err := getSession(r, sessionName)
+	session , err := getSession(r, mymap["sessionname"])
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -132,7 +128,7 @@ func serverHandler(w http.ResponseWriter, r *http.Request)  {
 	}
 
 	//if login data is correct then store session.
-	if formLogin.Login == camLogin && formLogin.Password == camPassword{
+	if formLogin.Login == mymap["sitelogin"] && formLogin.Password == mymap["sitepassword"]{
 		//We can set the user to logged in on this session once they log in.
 		setLoggedIn(session)
 		session.Save(r,w)
@@ -183,7 +179,7 @@ func camHandler(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Reques
 
 		//Check session to make sure they are logged in to view the cam's
 		//This will also prevent someone from just looking stright at the cam link.
-		session, _ := getSession(r,sessionName)
+		session, _ := getSession(r,mymap["sessionname"])
 		if getIsLoggedIn(session){
 			url , _ := url.Parse("")
 			// if the Url path has "cam" in it then add the videostream attubute
@@ -206,7 +202,7 @@ func camHandler(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Reques
 
 
 func getThemeName() string{
-	return "bs3"
+	return mymap["themename"]
 }
 
 
@@ -214,7 +210,7 @@ func getThemeName() string{
 
 func getSession( r *http.Request, sessionName string) (*sessions.Session, error) {
 
-	session, err := store.Get(r, sessionName)
+	session, err := store.Get(r, mymap["sessionname"])
 	if err != nil {
 		return  session, err
 	}
