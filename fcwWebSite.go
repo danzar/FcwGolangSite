@@ -19,8 +19,8 @@ import (
 
 var debug = false
 var sessionName = "fcw-server"
-var camLogin = "member"
-var camPassword = "fcw4225"
+var camLogin = "XXXX"
+var camPassword = "XXXX"
 
 var remoteAddress = true
 var ipAddress = "24.196.196.242:"
