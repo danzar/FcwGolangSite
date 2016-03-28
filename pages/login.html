@@ -1,0 +1,53 @@
+<html lang="en">
+
+!{!template "_head.html" .!}!
+
+<body>
+
+<div class="container">
+    !{! template "_mainmenu.html" .!}!
+
+
+    <div>
+        <h4>Please Log in</h4>
+
+    </div>
+
+
+    <div id="vuetest">
+
+        <div class="row">
+            <div class="col-md-10 col-lg-10">
+                <form class="form-horizontal" action='home' id="login" method="post">
+                <div class="form-group" >
+                    <label for="inputLogin" class="col-sm-2 control-label">Login</label>
+                    <div class="col-lg-10 col-sm-10 ">
+                        <input type="text" class="form-control" name="Login" id="inputLogin" placeholder="login">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword" class="col-sm-2 control-label">Password</label>
+                    <div class="col-lg-10 col-sm-10">
+                        <input type="password" class="form-control" name="Password" id="inputPassword" placeholder="Password">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-default">Sign in</button>
+                    </div>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+
+
+    !{! template "_foot.html" !}!
+
+</div> <!-- /container -->
+
+!{! template "_js.html" !}!
+
+
+
+</body>
