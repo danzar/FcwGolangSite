@@ -167,7 +167,7 @@ func serverHandler(w http.ResponseWriter, r *http.Request)  {
 	}
 
 
-	//context :=  defaultContext{Ports:ports}
+
 
 	//Execute the template/Page
 	staticPage.Execute(w,nil)
